@@ -1,0 +1,9 @@
+TP: 0.0
+FP: 0.0
+TN: 56875.0
+FN: 87.0
+Recall: 0.0
+Accuracy: 0.9984727
+Precision: 0.0
+AUC: 0.5
+Loss: 0.011363973522599748

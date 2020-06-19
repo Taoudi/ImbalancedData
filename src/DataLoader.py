@@ -15,8 +15,9 @@ class DataLoader:
 		max = np.min(self.X)
 		self.X = (self.X-min)/(max-min)
 		self.X, self.testX, self.Y, self.testY = train_test_split(self.X,self.Y, test_size=0.2)
-		
-	
+		self.classes = np.unique(self.Y)
+		self.n_classes = len(self.classes)
+
 	def summarize(self,test=False):
 		if test:
 			X = self.testX

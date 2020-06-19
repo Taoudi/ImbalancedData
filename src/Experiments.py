@@ -1,5 +1,6 @@
 from DataLoader import DataLoader
 from NetworkModels import LeNet
+from Augmentation import Augmenter
 import numpy as np
 from tensorflow.keras import metrics
 from sklearn.metrics import roc_curve,roc_auc_score
@@ -14,7 +15,17 @@ def ROC(precisions,recalls):
     plt.xlabel('Precision') 
     plt.ylabel('Recall') 
     plt.legend()
-    plt.show()    
+    plt.show()
+
+def plot(history):
+    plt.plot(history.history['precision'], label='Precision (training data)', marker='x')
+    plt.plot(history.history['accuracy'], label='Accuracy (training data)',marker='+')
+    plt.plot(history.history['recall'], label='Recall (training data)',marker='.')
+    plt.title('Binary Cross Entropy for Credit Card Fraud\n No Augmentation')
+    plt.ylabel('Percentage')
+    plt.xlabel('No. Epochs')
+    plt.legend(loc="upper left")
+    plt.show()
 
 def experiment():
     METRICS = [
@@ -29,10 +40,13 @@ def experiment():
     ]
     data = DataLoader()
     model = LeNet(data.X,METRICS)
-    model.fit(data.X,data.Y)
+    augmenter = Augmenter(data.X)
+    #data.X, data.Y = augmenter.duplicate(data.X,data.Y)
+    his = model.fit(data.X,data.Y)
     RES,fpr,tpr = model.predict(data.testX,data.testY)
     model_summary(RES)
     data.summarize(True)
+    plot(his)
     ROC(fpr,tpr)
   
 
