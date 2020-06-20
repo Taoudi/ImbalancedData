@@ -14,7 +14,6 @@ class LeNet:
         self.model.add(layers.Dense(300,activation='relu'))
         self.model.add(layers.Dense(100,activation='relu'))
         self.model.add(layers.Dense(1,activation='sigmoid'))
-        print(metrics)
         self.model.compile(tf.keras.optimizers.Adam(learning_rate=2e-4),loss=losses.BinaryCrossentropy(),
               metrics=metrics)
 
@@ -27,8 +26,6 @@ class LeNet:
         print(RESULTS)
         predictions = self.model.predict(X)
         fpr,tpr,thresholds = roc_curve(Y , predictions)
-        print(fpr)
-        print(tpr)
         """predictions = tf.argmax(predictions, 1)
         TP = tf.math.count_nonzero(predictions * Y)
         TN = tf.math.count_nonzero((predictions - 1) * (Y - 1))

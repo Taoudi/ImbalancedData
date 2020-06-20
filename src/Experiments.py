@@ -41,11 +41,11 @@ def experiment():
     data = DataLoader()
     model = LeNet(data.X,METRICS)
     augmenter = Augmenter(data.X)
-    #data.X, data.Y = augmenter.duplicate(data.X,data.Y)
+    data.X, data.Y = augmenter.duplicate(data.X,data.Y)
     his = model.fit(data.X,data.Y)
     RES,fpr,tpr = model.predict(data.testX,data.testY)
     model_summary(RES)
-    data.summarize(True)
+    #data.summarize(True)
     plot(his)
     ROC(fpr,tpr)
   
