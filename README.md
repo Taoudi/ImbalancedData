@@ -13,3 +13,4 @@ The network models in the project use the area under the ROC curve (AUC)[1] as a
 References
 1. Andrew P. Bradley - "The Use of the Area Under the ROC Curve in The Evaluation of Machine Learning Algorithms" - https://linkinghub.elsevier.com/retrieve/pii/S0031320396001422
 2. Sofia Visa, Ramsay Brian, Ralescu Anca - "Confusion Matrix-based Feature Selection" - http://ceur-ws.org/Vol-710/paper37.pdf
+3. Hongyi Zhang, Moustapha Cisse, Yann N. Dauphin, David Lopez-Paz - "mixup: Beyond Empirical Rsik Minimization" - http://arxiv.org/abs/1710.09412
