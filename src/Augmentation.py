@@ -18,7 +18,7 @@ class Augmenter:
         max_count = int(np.max(counts))
         n_augmented = int(np.abs(min_count-max_count))
         return n_augmented,min_count,max_count
-    def duplicate(self, X, Y):
+    def duplicate(self, X, Y, noise=False, sigma=0.01, mu=0):
         # Oversampling through duplication, minority classes are randomly chosen and duplicated until dataset is balanced
         n_augmented, min_count,max_count = self.get_counts(Y)
         augmented = np.zeros((n_augmented,X.shape[1]))
@@ -28,11 +28,9 @@ class Augmenter:
             idx = np.random.randint(1,min_count)
             augmented[i] = X[arg_partition[idx]]
             augmentedY[i] = Y[arg_partition[idx]]
-
+            if noise:
+                augmented[i]+= np.random.normal(mu, sigma, X[0].shape)
         newX = np.concatenate((X, augmented))
         newY = np.concatenate((Y, augmentedY))
         unique, counts = np.unique(newY, return_counts=True)
-
-
-
         return newX, newY

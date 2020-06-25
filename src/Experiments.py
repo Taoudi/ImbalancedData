@@ -41,7 +41,7 @@ def experiment():
     data = DataLoader()
     model = LeNet(data.X,METRICS)
     augmenter = Augmenter(data.X)
-    data.X, data.Y = augmenter.duplicate(data.X,data.Y)
+    data.X, data.Y = augmenter.duplicate(data.X,data.Y,noise=False,sigma=0.01)
     his = model.fit(data.X,data.Y)
     RES,fpr,tpr = model.predict(data.testX,data.testY)
     model_summary(RES)
