@@ -5,62 +5,73 @@ import numpy as np
 from tensorflow.keras import metrics
 from sklearn.metrics import roc_curve,roc_auc_score
 import matplotlib.pyplot as plt
+from settings import AugmentationType
 
 
+class Experiment:
 
-def ROC(precisions,recalls):
-    plt.plot(precisions,recalls,label="LeNet300", marker='x') 
-    plt.axis([0,1,0,1]) 
-    plt.title("ROC-curve")
-    plt.xlabel('Precision') 
-    plt.ylabel('Recall') 
-    plt.legend()
-    plt.show()
+    def __init__(self, aug_type, sigma=0.11):
+        self.augmentation = AugmentationType(aug_type,sigma=sigma)
 
-def plot(history):
-    plt.plot(history.history['precision'], label='Precision (training data)', marker='x')
-    plt.plot(history.history['accuracy'], label='Accuracy (training data)',marker='+')
-    plt.plot(history.history['recall'], label='Recall (training data)',marker='.')
-    plt.title('Binary Cross Entropy for Credit Card Fraud\n No Augmentation')
-    plt.ylabel('Percentage')
-    plt.xlabel('No. Epochs')
-    plt.legend(loc="upper left")
-    plt.show()
+    def ROC(self,precisions,recalls):
+        plt.plot(precisions,recalls,label="LeNet300", marker='x') 
+        plt.axis([0,1,0,1]) 
+        plt.title("ROC-curve\n " + self.augmentation.type_text)
+        plt.xlabel('Precision') 
+        plt.ylabel('Recall') 
+        plt.legend()
+        plt.show()
 
-def experiment():
-    METRICS = [
-        metrics.TruePositives(name='tp'),
-        metrics.FalsePositives(name='fp'),
-        metrics.TrueNegatives(name='tn'),
-        metrics.FalseNegatives(name='fn'), 
-        metrics.BinaryAccuracy(name='accuracy'),
-        metrics.Precision(name='precision'),
-        metrics.Recall(name='recall'),
-        metrics.AUC(name='auc')
-    ]
-    data = DataLoader()
-    model = LeNet(data.X,METRICS)
-    augmenter = Augmenter(data.X)
-    data.X, data.Y = augmenter.duplicate(data.X,data.Y,noise=False,sigma=0.01)
-    his = model.fit(data.X,data.Y)
-    RES,fpr,tpr = model.predict(data.testX,data.testY)
-    model_summary(RES)
-    #data.summarize(True)
-    plot(his)
-    ROC(fpr,tpr)
-  
+    def plot(self,history):
+        plt.plot(history.history['val_precision'], label='Precision (val data)', marker='x')
+        plt.plot(history.history['val_accuracy'], label='Accuracy (val data)',marker='+')
+        plt.plot(history.history['val_recall'], label='Recall (val data)',marker='.')
+        plt.title('Binary Cross Entropy for Credit Card Fraud\n ' + self.augmentation.type_text)
+        plt.ylabel('Percentage')
+        plt.xlabel('No. Epochs')
+        plt.legend(loc="upper left")
+        plt.show()
 
-def model_summary(RES):
-    print("TP: " + str(RES[1]))
-    print("FP: " + str(RES[2]))
-    print("TN: " + str(RES[3]))
-    print("FN: " + str(RES[4]))
+    def experiment(self):
+        METRICS = [
+            metrics.TruePositives(name='tp'),
+            metrics.FalsePositives(name='fp'),
+            metrics.TrueNegatives(name='tn'),
+            metrics.FalseNegatives(name='fn'), 
+            metrics.BinaryAccuracy(name='accuracy'),
+            metrics.Precision(name='precision'),
+            metrics.Recall(name='recall'),
+            metrics.AUC(name='auc')
+        ]
 
-    print("Recall: " + str(RES[7]))
-    print("Accuracy: " + str(RES[5]))
-    print("Precision: " + str(RES[6]))
-    print("AUC: " + str(RES[8]))
-    print("Loss: " + str(RES[0]))
+        data = DataLoader()
+        model = LeNet(data.X,METRICS)
+        augmenter = Augmenter(data.X)
+
+        if self.augmentation.type == 1 or self.augmentation.type == 2:
+            data.X, data.Y = augmenter.duplicate(data.X,data.Y,noise=self.augmentation.noise,sigma=self.augmentation.sigma)
+        elif self.augmentation.type == 3:
+            data.X, data.Y = augmenter.SMOTE()
+        his = model.fit(data.X,data.Y)
+        RES,fpr,tpr = model.predict(data.testX,data.testY)
+        self.model_summary(RES)
+        #data.summarize(True)
+        self.plot(his)
+        self.ROC(fpr,tpr)
+    
+
+    def model_summary(self,RES):
+        print("TP: " + str(RES[1]))
+        print("FP: " + str(RES[2]))
+        print("TN: " + str(RES[3]))
+        print("FN: " + str(RES[4]))
+
+        print("Recall: " + str(RES[7]))
+        print("Accuracy: " + str(RES[5]))
+        print("Precision: " + str(RES[6]))
+        print("AUC: " + str(RES[8]))
+        print("Loss: " + str(RES[0]))
 
 if __name__ == '__main__':
-    experiment()
+    experiment = Experiment(2)
+    experiment.experiment()

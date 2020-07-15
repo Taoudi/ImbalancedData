@@ -34,3 +34,6 @@ class Augmenter:
         newY = np.concatenate((Y, augmentedY))
         unique, counts = np.unique(newY, return_counts=True)
         return newX, newY
+
+    def SMOTE(self):
+        return
