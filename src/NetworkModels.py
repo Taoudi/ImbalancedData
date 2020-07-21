@@ -17,8 +17,8 @@ class LeNet:
         self.model.compile(tf.keras.optimizers.Adam(learning_rate=2e-4),loss=losses.BinaryCrossentropy(),
               metrics=metrics)
 
-    def fit(self,X,Y):
-        history = self.model.fit(X, Y, epochs=20, batch_size=128,validation_split=0.2,verbose=1)
+    def fit(self,X,Y,valX,valY):
+        history = self.model.fit(X, Y, epochs=20, batch_size=128,validation_data=(valX,valY),verbose=1)
         return history
     
     def predict(self, X, Y):

@@ -18,6 +18,7 @@ class Augmenter:
         max_count = int(np.max(counts))
         n_augmented = int(np.abs(min_count-max_count))
         return n_augmented,min_count,max_count
+        
     def duplicate(self, X, Y, noise=False, sigma=0.01, mu=0):
         # Oversampling through duplication, minority classes are randomly chosen and duplicated until dataset is balanced
         n_augmented, min_count,max_count = self.get_counts(Y)

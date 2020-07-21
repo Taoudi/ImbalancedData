@@ -52,7 +52,7 @@ class Experiment:
             data.X, data.Y = augmenter.duplicate(data.X,data.Y,noise=self.augmentation.noise,sigma=self.augmentation.sigma)
         elif self.augmentation.type == 3:
             data.X, data.Y = augmenter.SMOTE()
-        his = model.fit(data.X,data.Y)
+        his = model.fit(data.X,data.Y,data.valX, data.valY)
         RES,fpr,tpr = model.predict(data.testX,data.testY)
         self.model_summary(RES)
         #data.summarize(True)
