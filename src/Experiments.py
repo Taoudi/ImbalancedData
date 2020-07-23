@@ -7,6 +7,7 @@ from sklearn.metrics import roc_curve,roc_auc_score
 import matplotlib.pyplot as plt
 from settings import AugmentationType
 import autokeras as ak
+from sklearn.metrics import roc_curve,roc_auc_score
 
 
 class Experiment:
@@ -48,7 +49,7 @@ class Experiment:
         data = DataLoader()
         #model = LeNet(data.X,METRICS)
         augmenter = Augmenter(data.X)
-        model = ak.StructuredDataClassifier(overwrite=True,max_trials=3,metrics=METRICS,objective="val_AUC")
+        model = ak.StructuredDataClassifier(overwrite=True,max_trials=10,metrics=METRICS,objective="val_AUC")
         if self.augmentation.type == 1 or self.augmentation.type == 2:
             data.X, data.Y = augmenter.duplicate(data.X,data.Y,noise=self.augmentation.noise,sigma=self.augmentation.sigma)
         elif self.augmentation.type == 3:
@@ -58,15 +59,17 @@ class Experiment:
 
         #his = model.fit(data.X,data.Y,data.valX, data.valY)
         #RES,fpr,tpr = model.predict(data.testX,data.testY)
-        model.fit(data.X,data.Y,validation_data=(data.valX, data.valY),epochs=10)
+        model.fit(data.X,data.Y,validation_data=(data.valX, data.valY),epochs=20)
+        his = model.final_fit(data.X,data.Y,validation_data=(data.valX, data.valY), retrain=True)
         print("HELLO")
-        predicted_y = model.predict(data.testX)
-        print(model.evaluate(data.testX, data.testY))
+        predictions = model.predict(data.testX)
+        RES = model.evaluate(data.testX, data.testY)
+        fpr,tpr,thresholds = roc_curve(data.testY , predictions)
 
         #self.model_summary(RES)
         #data.summarize(True)
-        #self.plot(his)
-        #self.ROC(fpr,tpr)
+        self.plot(his)
+        self.ROC(fpr,tpr)
     
 
     def model_summary(self,RES):
