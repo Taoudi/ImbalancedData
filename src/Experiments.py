@@ -10,7 +10,7 @@ from settings import AugmentationType
 
 class Experiment:
 
-    def __init__(self, aug_type, sigma=0.11):
+    def __init__(self, aug_type, sigma=0.01):
         self.augmentation = AugmentationType(aug_type,sigma=sigma)
 
     def ROC(self,precisions,recalls):

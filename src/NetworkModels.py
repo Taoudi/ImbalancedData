@@ -12,6 +12,7 @@ class LeNet:
         self.model = models.Sequential()
         self.model.add(layers.Flatten(input_shape=(X[0].shape)))
         self.model.add(layers.Dense(300,activation='relu'))
+        self.model.add(layers.Dense(200,activation='relu'))
         self.model.add(layers.Dense(100,activation='relu'))
         self.model.add(layers.Dense(1,activation='sigmoid'))
         self.model.compile(tf.keras.optimizers.Adam(learning_rate=2e-4),loss=losses.BinaryCrossentropy(),
