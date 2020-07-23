@@ -130,3 +130,5 @@ dmypy.json
 
 *.suo
 *.sqlite
+structured_data_calssifier/
+src/structured_data_calssifier/
