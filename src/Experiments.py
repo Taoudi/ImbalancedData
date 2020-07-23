@@ -6,6 +6,7 @@ from tensorflow.keras import metrics
 from sklearn.metrics import roc_curve,roc_auc_score
 import matplotlib.pyplot as plt
 from settings import AugmentationType
+import autokeras as ak
 
 
 class Experiment:
@@ -41,23 +42,31 @@ class Experiment:
             metrics.BinaryAccuracy(name='accuracy'),
             metrics.Precision(name='precision'),
             metrics.Recall(name='recall'),
-            metrics.AUC(name='auc')
+            metrics.AUC(name='AUC')
         ]
 
         data = DataLoader()
-        model = LeNet(data.X,METRICS)
+        #model = LeNet(data.X,METRICS)
         augmenter = Augmenter(data.X)
-
+        model = ak.StructuredDataClassifier(overwrite=True,max_trials=3,metrics=METRICS,objective="val_AUC")
         if self.augmentation.type == 1 or self.augmentation.type == 2:
             data.X, data.Y = augmenter.duplicate(data.X,data.Y,noise=self.augmentation.noise,sigma=self.augmentation.sigma)
         elif self.augmentation.type == 3:
             data.X, data.Y = augmenter.SMOTE()
-        his = model.fit(data.X,data.Y,data.valX, data.valY)
-        RES,fpr,tpr = model.predict(data.testX,data.testY)
-        self.model_summary(RES)
+
+
+
+        #his = model.fit(data.X,data.Y,data.valX, data.valY)
+        #RES,fpr,tpr = model.predict(data.testX,data.testY)
+        model.fit(data.X,data.Y,validation_data=(data.valX, data.valY),epochs=10)
+        print("HELLO")
+        predicted_y = model.predict(data.testX)
+        print(model.evaluate(data.testX, data.testY))
+
+        #self.model_summary(RES)
         #data.summarize(True)
-        self.plot(his)
-        self.ROC(fpr,tpr)
+        #self.plot(his)
+        #self.ROC(fpr,tpr)
     
 
     def model_summary(self,RES):
