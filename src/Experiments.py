@@ -73,5 +73,5 @@ class Experiment:
         print("Loss: " + str(RES[0]))
 
 if __name__ == '__main__':
-    experiment = Experiment(2)
+    experiment = Experiment(1)
     experiment.experiment()

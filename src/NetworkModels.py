@@ -8,13 +8,32 @@ from sklearn.metrics import roc_curve,roc_auc_score
 
 class LeNet:
  
-    def __init__(self,X, metrics):
+    def __init__(self,X, metrics,dropout=True,rate=0.25):
         self.model = models.Sequential()
         self.model.add(layers.Flatten(input_shape=(X[0].shape)))
-        self.model.add(layers.Dense(300,activation='relu'))
-        self.model.add(layers.Dense(200,activation='relu'))
-        self.model.add(layers.Dense(100,activation='relu'))
+        """
+        self.model.add(layers.Dense(512,activation='relu'))
+        self.model.add(layers.Dense(512,activation='relu'))
+
+        #if dropout:
+        #    self.model.add(layers.Dropout(rate))
+        self.model.add(layers.Dense(256,activation='relu'))
+        self.model.add(layers.Dense(256,activation='relu'))
+
+        #if dropout:
+        #    self.model.add(layers.Dropout(rate))
+        self.model.add(layers.Dense(128,activation='relu'))
+        self.model.add(layers.Dense(128,activation='relu'))
+
+        self.model.add(layers.Dense(64,activation='relu'))
         self.model.add(layers.Dense(1,activation='sigmoid'))
+        """
+        self.model.add(layers.Dense(300,activation='relu'))
+        self.model.add(layers.Dense(100,activation='relu'))
+
+        self.model.add(layers.Dense(1,activation='sigmoid'))
+
+
         self.model.compile(tf.keras.optimizers.Adam(learning_rate=2e-4),loss=losses.BinaryCrossentropy(),
               metrics=metrics)
 
