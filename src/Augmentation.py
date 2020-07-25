@@ -47,34 +47,43 @@ class Augmenter:
         return newX, newY
 
     # Returns indices of k-nearest neighbours in the self.minority_data matrix for each minority point
-    def k_nearest(self,k=5):
-            N = np.floor(N/100) # Integral multiples of 100
+    def k_nearest(self,k):
             neighbours = np.zeros((self.minority_data.shape[0],k+1))
             neighbours2 = np.zeros((self.minority_data.shape[0],k))
-
-            print(neighbours.shape)
-           
+            k_distances = np.zeros((self.minority_data.shape[0],k))
             # n_attributes = len(point)
             created_samples = 0
             for i in range(self.minority_data.shape[0]):
-                neighbours[i] = np.argpartition(np.linalg.norm(self.minority_data[i] - self.minority_data,axis=1),k+1)[:k+1]
-            for i in range(self.minority_data.shape[0]):
+                distances = np.linalg.norm(self.minority_data[i] - self.minority_data,axis=1)
+                neighbours[i] = np.argpartition(distances,k+1)[:k+1]
                 neighbours2[i] = neighbours[i][neighbours[i]!=i]
-            return neighbours
+                k_distances[i] = distances[neighbours2[i].astype(int)]
 
-    def SMOTE(self,k=5,N=500):
+            return neighbours2,k_distances
+
+    def SMOTE(self,k=5,N=300):
         #
         n_augmented, min_count,max_count = self.get_counts()
-        N = np.floor(N/100) # Integral multiples of 100
+        N =int(np.floor(N/100)) # Integral multiples of 100
         if N > k:
             print("N cannot be larger than k")
         if N < 1:
             print("N must be atleast 100%")
 
-        arg_neighbours = self.k_nearest()
-        
+        arg_neighbours, k_distances = self.k_nearest(k)
+        scalars = np.random.rand(arg_neighbours.shape[0], N)
+        samples = np.zeros((arg_neighbours.shape[0], N))
+        rng = np.random.choice(k,size=N,replace=False).astype(int)
+        #print(self.minority_data.shape)
+        #print(scalars.shape)
+        #print(self.minority_data.T[rng].T.shape)
+        #self.minority_data + scalars * (self.minority_data -self.minority_data.T[rng].T.shape)
 
 
+
+        for i in range(len(arg_neighbours)):
+            rng = np.random.choice(k,size=N,replace=False).astype(int)
+            pass
 
         return
 
