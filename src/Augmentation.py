@@ -61,7 +61,7 @@ class Augmenter:
 
             return neighbours2,k_distances
 
-    def SMOTE(self,k=5,N=300):
+    def SMOTE(self,k=200,N=20000):
         #
         n_augmented, min_count,max_count = self.get_counts()
         N =int(np.floor(N/100)) # Integral multiples of 100
@@ -72,20 +72,22 @@ class Augmenter:
 
         arg_neighbours, k_distances = self.k_nearest(k)
         scalars = np.random.rand(arg_neighbours.shape[0], N)
-        samples = np.zeros((arg_neighbours.shape[0], N))
+        samples = np.zeros((arg_neighbours.shape[0], N, self.minority_data.shape[1]))
         rng = np.random.choice(k,size=N,replace=False).astype(int)
-        #print(self.minority_data.shape)
-        #print(scalars.shape)
-        #print(self.minority_data.T[rng].T.shape)
-        #self.minority_data + scalars * (self.minority_data -self.minority_data.T[rng].T.shape)
+        #self.minority_data + scalars * (self.minority_data -self.minority_data[rng][:])
 
 
-
-        for i in range(len(arg_neighbours)):
+        for i in range(len(self.minority_data)):
             rng = np.random.choice(k,size=N,replace=False).astype(int)
-            pass
+            samples[i] = self.minority_data[i][:] + np.expand_dims(scalars[i],axis=1) * (self.minority_data[i][:] -self.minority_data[rng][:])
+        
+        samples = samples.reshape((samples.shape[0]*samples.shape[1], samples.shape[2]))
+    
 
-        return
+        samplesY = np.zeros(len(samples))
+        newX = np.concatenate((self.X, samples))
+        newY = np.concatenate((self.Y, samplesY))
+        return newX, newY
 
 
 if __name__ == '__main__':
