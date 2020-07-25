@@ -1,40 +1,86 @@
 from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
-
+from DataLoader import DataLoader
+import math
 class Augmenter:
-    def __init__(self,X):
-        self.X = X
 
-    def get_indices(self,Y,max_count,min_count):
-        # Returns a list of indices for the minority classes in the main dataset
-        return np.argpartition(-Y,min_count)[:min_count]
-
-    def get_counts(self,Y):
+    def get_counts(self):
         # Calculates the amounts of instances of minority and majority in the main dataset, along with how many augmented samples should be added
-        unique, counts = np.unique(Y, return_counts=True)
+        unique, counts = np.unique(self.Y, return_counts=True)
         arg_min_count = int(np.argmin(counts))
         arg_max_count = int(np.argmax(counts))
         min_count = int(np.min(counts))
         max_count = int(np.max(counts))
         n_augmented = int(np.abs(min_count-max_count))
         return n_augmented,min_count,max_count
+
+    def get_indices(self,max_count,min_count):
+        # Returns a list of indices for the minority classes in the main dataset
+        return np.argpartition(-self.Y,min_count)[:min_count]
+
+    def __init__(self,X,Y):
+        self.X = X
+        self.Y = Y
+        n_augmented, min_count,max_count = self.get_counts()
+        arg_partition = self.get_indices(max_count,min_count)
+
+        self.minority_data = self.X[arg_partition]
+
+
+
         
-    def duplicate(self, X, Y, noise=False, sigma=0.01, mu=0):
+    def duplicate(self ,noise=False, sigma=0.01, mu=0):
         # Oversampling through duplication, minority classes are randomly chosen and duplicated until dataset is balanced
         n_augmented, min_count,max_count = self.get_counts(Y)
-        augmented = np.zeros((n_augmented,X.shape[1]))
+        augmented = np.zeros((n_augmented,self.X.shape[1]))
         augmentedY = np.zeros(n_augmented)
-        arg_partition = self.get_indices(Y,max_count,min_count)
+        arg_partition = self.get_indices(self.Y,max_count,min_count)
         for i in range(n_augmented):
             idx = np.random.randint(1,min_count)
-            augmented[i] = X[arg_partition[idx]]
-            augmentedY[i] = Y[arg_partition[idx]]
+            augmented[i] = self.X[arg_partition[idx]]
+            augmentedY[i] = self.Y[arg_partition[idx]]
             if noise:
-                augmented[i]+= np.random.normal(mu, sigma, X[0].shape)
-        newX = np.concatenate((X, augmented))
-        newY = np.concatenate((Y, augmentedY))
+                augmented[i]+= np.random.normal(mu, sigma, self.X[0].shape)
+        newX = np.concatenate((self.X, augmented))
+        newY = np.concatenate((self.Y, augmentedY))
         unique, counts = np.unique(newY, return_counts=True)
         return newX, newY
 
-    def SMOTE(self):
+    # Returns indices of k-nearest neighbours in the self.minority_data matrix for each minority point
+    def k_nearest(self,k=5):
+            N = np.floor(N/100) # Integral multiples of 100
+            neighbours = np.zeros((self.minority_data.shape[0],k+1))
+            neighbours2 = np.zeros((self.minority_data.shape[0],k))
+
+            print(neighbours.shape)
+           
+            # n_attributes = len(point)
+            created_samples = 0
+            for i in range(self.minority_data.shape[0]):
+                neighbours[i] = np.argpartition(np.linalg.norm(self.minority_data[i] - self.minority_data,axis=1),k+1)[:k+1]
+            for i in range(self.minority_data.shape[0]):
+                neighbours2[i] = neighbours[i][neighbours[i]!=i]
+            return neighbours
+
+    def SMOTE(self,k=5,N=500):
+        #
+        n_augmented, min_count,max_count = self.get_counts()
+        N = np.floor(N/100) # Integral multiples of 100
+        if N > k:
+            print("N cannot be larger than k")
+        if N < 1:
+            print("N must be atleast 100%")
+
+        arg_neighbours = self.k_nearest()
+        
+
+
+
         return
+
+
+if __name__ == '__main__':
+    data = DataLoader()
+    aug = Augmenter(data.X, data.Y)
+
+    aug.SMOTE()
