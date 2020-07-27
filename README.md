@@ -6,7 +6,7 @@ The network models in the project use the area under the ROC curve (AUC)[1] as a
 TODO: Model Selection (PLACEHOLDER: LENET300), Average Accuracy as secondary metric
 - [X] Oversampling through standard duplication
 - [X] Oversampling through duplication with small noise
-- [ ] Oversampling using SMOTE [3]
+- [X] Oversampling using SMOTE [3]
 - [ ] Oversampling using mixup [4]
 
 
