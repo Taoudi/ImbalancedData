@@ -31,10 +31,10 @@ class Augmenter:
         
     def duplicate(self ,noise=False, sigma=0.01, mu=0):
         # Oversampling through duplication, minority classes are randomly chosen and duplicated until dataset is balanced
-        n_augmented, min_count,max_count = self.get_counts(Y)
+        n_augmented, min_count,max_count = self.get_counts()
         augmented = np.zeros((n_augmented,self.X.shape[1]))
         augmentedY = np.zeros(n_augmented)
-        arg_partition = self.get_indices(self.Y,max_count,min_count)
+        arg_partition = self.get_indices(max_count,min_count)
         for i in range(n_augmented):
             idx = np.random.randint(1,min_count)
             augmented[i] = self.X[arg_partition[idx]]
@@ -61,8 +61,8 @@ class Augmenter:
 
             return neighbours2,k_distances
 
-    def SMOTE(self,k=200,N=20000):
-        #
+    def SMOTE(self,k=100,N=5000):
+        # Oversampling through generating samples along neighbours
         n_augmented, min_count,max_count = self.get_counts()
         N =int(np.floor(N/100)) # Integral multiples of 100
         if N > k:
@@ -74,7 +74,6 @@ class Augmenter:
         scalars = np.random.rand(arg_neighbours.shape[0], N)
         samples = np.zeros((arg_neighbours.shape[0], N, self.minority_data.shape[1]))
         rng = np.random.choice(k,size=N,replace=False).astype(int)
-        #self.minority_data + scalars * (self.minority_data -self.minority_data[rng][:])
 
 
         for i in range(len(self.minority_data)):

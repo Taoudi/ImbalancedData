@@ -46,10 +46,10 @@ class Experiment:
 
         data = DataLoader()
         model = LeNet(data.X,METRICS)
-        augmenter = Augmenter(data.X)
+        augmenter = Augmenter(data.X,data.Y)
 
         if self.augmentation.type == 1 or self.augmentation.type == 2:
-            data.X, data.Y = augmenter.duplicate(data.X,data.Y,noise=self.augmentation.noise,sigma=self.augmentation.sigma)
+            data.X, data.Y = augmenter.duplicate(noise=self.augmentation.noise,sigma=self.augmentation.sigma)
         elif self.augmentation.type == 3:
             data.X, data.Y = augmenter.SMOTE()
         his = model.fit(data.X,data.Y,data.valX, data.valY)
@@ -73,5 +73,5 @@ class Experiment:
         print("Loss: " + str(RES[0]))
 
 if __name__ == '__main__':
-    experiment = Experiment(1)
+    experiment = Experiment(3)
     experiment.experiment()
