@@ -25,10 +25,28 @@ class Augmenter:
         arg_partition = self.get_indices(max_count,min_count)
 
         self.minority_data = self.X[arg_partition]
+        self.minority_dataY = self.Y[arg_partition]
 
+    def set_data(self,X,Y):
+        self.X = X
+        self.Y = Y
+        n_augmented, min_count,max_count = self.get_counts()
+        arg_partition = self.get_indices(max_count,min_count)
+        self.minority_data = self.X[arg_partition]
 
-
+    def undersample(self,ratio=100):
+        n_augmented, min_count,max_count = self.get_counts()
+        augmented = np.zeros((n_augmented,self.X.shape[1]))
         
+        p = np.argpartition(self.Y,-max_count)[:max_count]
+        np.random.shuffle(p)
+        chosen = np.random.choice(a=p,size=min_count*ratio,replace=False).astype(int)
+
+        newY = np.concatenate((self.Y[chosen], self.minority_dataY))
+        newX = np.concatenate((self.X[chosen], self.minority_data))
+
+        return newX, newY
+
     def duplicate(self ,noise=False, sigma=0.01, mu=0):
         # Oversampling through duplication, minority classes are randomly chosen and duplicated until dataset is balanced
         n_augmented, min_count,max_count = self.get_counts()
@@ -93,4 +111,4 @@ if __name__ == '__main__':
     data = DataLoader()
     aug = Augmenter(data.X, data.Y)
 
-    aug.SMOTE()
+    aug.undersample()
