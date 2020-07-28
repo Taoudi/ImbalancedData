@@ -32,13 +32,17 @@ class LeNet:
         self.model.add(layers.Dense(100,activation='relu'))
 
         self.model.add(layers.Dense(1,activation='sigmoid'))
+        self.es = tf.keras.callbacks.EarlyStopping(
+            monitor='val_auc', 
+            patience=10,
+            mode='max',
+            restore_best_weights=True)
 
-
-        self.model.compile(tf.keras.optimizers.Adam(learning_rate=2e-4),loss=losses.BinaryCrossentropy(),
+        self.model.compile(tf.keras.optimizers.Adam(learning_rate=1e-4),loss=losses.BinaryCrossentropy(),
               metrics=metrics)
 
     def fit(self,X,Y,valX,valY):
-        history = self.model.fit(X, Y, epochs=20, batch_size=128,validation_data=(valX,valY),verbose=1)
+        history = self.model.fit(X, Y, epochs=100, batch_size=128,validation_data=(valX,valY),verbose=1,callbacks=self.es)
         return history
     
     def predict(self, X, Y):

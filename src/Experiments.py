@@ -32,7 +32,7 @@ class Experiment:
         plt.legend(loc="upper left")
         plt.show()
 
-    def experiment(self):
+    def experiment(self,under=False,ratio=3):
         METRICS = [
             metrics.TruePositives(name='tp'),
             metrics.FalsePositives(name='fp'),
@@ -47,15 +47,17 @@ class Experiment:
         data = DataLoader()
         model = LeNet(data.X,METRICS)
         augmenter = Augmenter(data.X,data.Y)
+        if under:
+            data.X,data.Y = augmenter.undersample(ratio=ratio)
 
         if self.augmentation.type == 1 or self.augmentation.type == 2:
             data.X, data.Y = augmenter.duplicate(noise=self.augmentation.noise,sigma=self.augmentation.sigma)
         elif self.augmentation.type == 3:
             data.X, data.Y = augmenter.SMOTE()
+        data.summarize(test=False)
         his = model.fit(data.X,data.Y,data.valX, data.valY)
         RES,fpr,tpr = model.predict(data.testX,data.testY)
         self.model_summary(RES)
-        #data.summarize(True)
         self.plot(his)
         self.ROC(fpr,tpr)
     
@@ -74,4 +76,4 @@ class Experiment:
 
 if __name__ == '__main__':
     experiment = Experiment(3)
-    experiment.experiment()
+    experiment.experiment(under=True)

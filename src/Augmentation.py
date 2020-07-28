@@ -18,7 +18,7 @@ class Augmenter:
         # Returns a list of indices for the minority classes in the main dataset
         return np.argpartition(-self.Y,min_count)[:min_count]
 
-    def __init__(self,X,Y):
+    def update_data(self,X,Y):
         self.X = X
         self.Y = Y
         n_augmented, min_count,max_count = self.get_counts()
@@ -26,6 +26,9 @@ class Augmenter:
 
         self.minority_data = self.X[arg_partition]
         self.minority_dataY = self.Y[arg_partition]
+
+    def __init__(self,X,Y):
+        self.update_data(X,Y)
 
     def set_data(self,X,Y):
         self.X = X
@@ -44,6 +47,7 @@ class Augmenter:
 
         newY = np.concatenate((self.Y[chosen], self.minority_dataY))
         newX = np.concatenate((self.X[chosen], self.minority_data))
+        self.update_data(newX,newY)
 
         return newX, newY
 
@@ -62,6 +66,7 @@ class Augmenter:
         newX = np.concatenate((self.X, augmented))
         newY = np.concatenate((self.Y, augmentedY))
         unique, counts = np.unique(newY, return_counts=True)
+        self.update_data(newX,newY)
         return newX, newY
 
     # Returns indices of k-nearest neighbours in the self.minority_data matrix for each minority point
@@ -79,15 +84,23 @@ class Augmenter:
 
             return neighbours2,k_distances
 
-    def SMOTE(self,k=100,N=5000):
+    def SMOTE(self):
         # Oversampling through generating samples along neighbours
         n_augmented, min_count,max_count = self.get_counts()
-        N =int(np.floor(N/100)) # Integral multiples of 100
-        if N > k:
-            print("N cannot be larger than k")
-        if N < 1:
-            print("N must be atleast 100%")
+        N = int(np.ceil(len(self.X) - len(self.minority_data))/len(self.minority_data))
+        # N = int(np.floor(N/100)) # Integral multiples of 100
 
+        if(N>10):
+            k = int(N*np.log(N))
+        else:
+            k = int(5*N)
+
+        if N < 1:
+            print("N must be atleast 100")
+
+        print(N)
+        print(k)
+        print(N*len(self.minority_data))
         arg_neighbours, k_distances = self.k_nearest(k)
         scalars = np.random.rand(arg_neighbours.shape[0], N)
         samples = np.zeros((arg_neighbours.shape[0], N, self.minority_data.shape[1]))
@@ -99,11 +112,13 @@ class Augmenter:
             samples[i] = self.minority_data[i][:] + np.expand_dims(scalars[i],axis=1) * (self.minority_data[i][:] -self.minority_data[rng][:])
         
         samples = samples.reshape((samples.shape[0]*samples.shape[1], samples.shape[2]))
-    
+        print(samples.shape)
 
-        samplesY = np.zeros(len(samples))
+        samplesY = np.ones(len(samples))
         newX = np.concatenate((self.X, samples))
         newY = np.concatenate((self.Y, samplesY))
+        print(newX.shape)
+        self.update_data(newX,newY)
         return newX, newY
 
 
