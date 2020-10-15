@@ -23,9 +23,14 @@ class Experiment:
         plt.show()
 
     def plot(self,history):
-        plt.plot(history.history['val_precision'], label='Precision (val data)', marker='x')
-        plt.plot(history.history['val_accuracy'], label='Accuracy (val data)',marker='+')
-        plt.plot(history.history['val_recall'], label='Recall (val data)',marker='.')
+        plt.plot(history.history['val_precision'], label='Precision (val data)', marker='x',color='r')
+        plt.plot(history.history['val_accuracy'], label='Accuracy (val data)',marker='+',color='r')
+        plt.plot(history.history['val_recall'], label='Recall (val data)',marker='.',color='r')
+
+        plt.plot(history.history['precision'], label='Precision (training data)', marker='x',color='g')
+        plt.plot(history.history['accuracy'], label='Accuracy (training data)',marker='+',color='g')
+        plt.plot(history.history['recall'], label='Recall (training data)',marker='.',color='g')
+
         plt.title('Binary Cross Entropy for Credit Card Fraud\n ' + self.augmentation.type_text)
         plt.ylabel('Percentage')
         plt.xlabel('No. Epochs')
@@ -47,6 +52,7 @@ class Experiment:
         data = DataLoader()
         model = LeNet(data.X,METRICS)
         augmenter = Augmenter(data.X,data.Y)
+
         if under:
             data.X,data.Y = augmenter.undersample(ratio=ratio)
 
@@ -54,6 +60,12 @@ class Experiment:
             data.X, data.Y = augmenter.duplicate(noise=self.augmentation.noise,sigma=self.augmentation.sigma)
         elif self.augmentation.type == 3:
             data.X, data.Y = augmenter.SMOTE()
+
+
+        #data.normalize()
+        #print(len(data.X))
+        #print(len(data.valX))
+
         data.summarize(test=False)
         his = model.fit(data.X,data.Y,data.valX, data.valY)
         RES,fpr,tpr = model.predict(data.testX,data.testY)
@@ -75,5 +87,5 @@ class Experiment:
         print("Loss: " + str(RES[0]))
 
 if __name__ == '__main__':
-    experiment = Experiment(3)
-    experiment.experiment(under=True)
+    experiment = Experiment(3,sigma=0.01)
+    experiment.experiment(under=True,ratio=100)

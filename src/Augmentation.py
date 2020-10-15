@@ -117,7 +117,6 @@ class Augmenter:
         samplesY = np.ones(len(samples))
         newX = np.concatenate((self.X, samples))
         newY = np.concatenate((self.Y, samplesY))
-        print(newX.shape)
         self.update_data(newX,newY)
         return newX, newY
 
