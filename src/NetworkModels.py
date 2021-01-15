@@ -42,7 +42,7 @@ class LeNet:
               metrics=metrics)
 
     def fit(self,X,Y,valX,valY):
-        history = self.model.fit(X, Y, epochs=100, batch_size=128,validation_data=(valX,valY),verbose=1,callbacks=self.es)
+        history = self.model.fit(X, Y, epochs=100, batch_size=128,validation_data=(valX,valY),verbose=0,callbacks=self.es)
         return history
     
     def predict(self, X, Y):

@@ -18,7 +18,7 @@ class Experiment:
         plt.axis([0,1,0,1]) 
         plt.title("ROC-curve\n " + self.augmentation.type_text)
         plt.xlabel('Precision') 
-        plt.ylabel('Recall') 
+        plt.ylabel('Recall')
         plt.legend()
         plt.show()
 
@@ -69,10 +69,10 @@ class Experiment:
         data.summarize(test=False)
         his = model.fit(data.X,data.Y,data.valX, data.valY)
         RES,fpr,tpr = model.predict(data.testX,data.testY)
-        self.model_summary(RES)
-        self.plot(his)
-        self.ROC(fpr,tpr)
-    
+        #self.model_summary(RES)
+        #self.plot(his)
+        #self.ROC(fpr,tpr)
+        return RES[8]
 
     def model_summary(self,RES):
         print("TP: " + str(RES[1]))
@@ -86,6 +86,29 @@ class Experiment:
         print("AUC: " + str(RES[8]))
         print("Loss: " + str(RES[0]))
 
+
+    def undersample_experiment(self):
+        jumps = 10
+        iters = 5*jumps
+        ratios = []
+        AUCs = []
+        for i,j in enumerate(range(1,iters+1,10)):
+            #ratio = j*5-4
+            #ratio = 2**j
+            res = experiment.experiment(under=True,ratio=ratio)
+            ratios.append(ratio)
+            AUCs.append(res)
+            print(i , j )
+        print(ratios, AUCs)
+        plt.scatter(ratios,AUCs)
+        plt.title('AUC for increasing data unbalance (using undersampling)\n')
+        plt.ylabel('Area under the curve (AUC)')
+        plt.xlabel('Ratio between majority and minority classes')
+        plt.show()
+
+        #print(ratios)
+        #print(AUCs)
+
 if __name__ == '__main__':
-    experiment = Experiment(3,sigma=0.01)
-    experiment.experiment(under=True,ratio=100)
+   experiment = Experiment(0,sigma=0.00)
+   experiment.undersample_experiment()
