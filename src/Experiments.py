@@ -1,3 +1,4 @@
+from matplotlib import markers
 from DataLoader import DataLoader
 from NetworkModels import LeNet
 from Augmentation import Augmenter
@@ -14,7 +15,7 @@ class Experiment:
         self.augmentation = AugmentationType(aug_type,sigma=sigma)
 
     def ROC(self,precisions,recalls):
-        plt.plot(precisions,recalls,label="LeNet300", marker='x') 
+        plt.plot(precisions,recalls,label="LeNet300") 
         plt.axis([0,1,0,1]) 
         plt.title("ROC-curve\n " + self.augmentation.type_text)
         plt.xlabel('Precision') 
@@ -37,7 +38,7 @@ class Experiment:
         plt.legend(loc="upper left")
         plt.show()
 
-    def experiment(self,under=False,ratio=3):
+    def experiment(self,under=False,ratio=3,plot=False):
         METRICS = [
             metrics.TruePositives(name='tp'),
             metrics.FalsePositives(name='fp'),
@@ -70,9 +71,10 @@ class Experiment:
         his = model.fit(data.X,data.Y,data.valX, data.valY)
         RES,fpr,tpr = model.predict(data.testX,data.testY)
         #self.model_summary(RES)
-        #self.plot(his)
-        #self.ROC(fpr,tpr)
-        return RES[8]
+        if plot:
+            self.plot(his)
+            self.ROC(fpr,tpr)
+        return RES
 
     def model_summary(self,RES):
         print("TP: " + str(RES[1]))
@@ -86,29 +88,55 @@ class Experiment:
         print("AUC: " + str(RES[8]))
         print("Loss: " + str(RES[0]))
 
+    def duplication_experiment(self):
+        iters = 8
+        rounds = 3
+        AUCs = np.zeros((iters, rounds))
+        res = experiment.experiment(under=False,plot=True)
+        print(res)
 
     def undersample_experiment(self):
-        jumps = 10
-        iters = 5*jumps
+        #jumps = 10
+        iters = 8
+        rounds = 3
         ratios = []
-        AUCs = []
-        for i,j in enumerate(range(1,iters+1,10)):
-            #ratio = j*5-4
-            #ratio = 2**j
-            res = experiment.experiment(under=True,ratio=ratio)
-            ratios.append(ratio)
-            AUCs.append(res)
-            print(i , j )
+        #AUCs = []
+        AUCs = np.zeros((iters, rounds))
+        #ratios = np.arange(1,iters+1)
+        #ratios = np.power(ratios,2)
+        #AUCs = np.random.rand(iters,rounds)
+        print("SHAPE", np.mean(AUCs,axis=1).shape)
+       
+
+        #plt.errorbar(ratios, np.mean(AUCs,axis=1),yerr=deviation,ecolor='g', color='g',marker='o')
+       
+        for r in range(rounds):
+            for i,j in enumerate(range(1,iters+1)):
+                #ratio = j*5-4
+                #ratio = 2**j
+                ratio=j**2
+                #ratio = int(np.log2(j+1))
+                print("RATIO" ,ratio, "ROUND", r)
+                res = experiment.experiment(under=True,ratio=ratio)
+                if r == 0:
+                    ratios.append(ratio)
+                AUCs[i][r] = res[8]
+                print(i , j )
         print(ratios, AUCs)
-        plt.scatter(ratios,AUCs)
+        #plt.errorbar(ratios, np.mean(AUCs,axis=1),yerr=deviation,ecolor='g', color='g',marker='o')
+        deviation = np.zeros((2,AUCs.shape[0]))
+        deviation[1] = np.max(AUCs,axis=1)
+        deviation[0] = np.min(AUCs,axis=1)
+        plt.plot(ratios, np.mean(AUCs,axis=1),marker='o',color='g')
+        plt.fill_between(ratios, y1=deviation[0],y2=deviation[1],alpha=0.2, edgecolor='#3F7F4C',facecolor='#7EFF99')
         plt.title('AUC for increasing data unbalance (using undersampling)\n')
         plt.ylabel('Area under the curve (AUC)')
-        plt.xlabel('Ratio between majority and minority classes')
+        plt.xlabel('Ratio between minority and majority classes (1:X)')
         plt.show()
 
         #print(ratios)
         #print(AUCs)
 
 if __name__ == '__main__':
-   experiment = Experiment(0,sigma=0.00)
-   experiment.undersample_experiment()
+   experiment = Experiment(3,sigma=0.00)
+   experiment.duplication_experiment()

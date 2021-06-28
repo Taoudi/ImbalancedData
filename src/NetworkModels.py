@@ -42,12 +42,12 @@ class LeNet:
               metrics=metrics)
 
     def fit(self,X,Y,valX,valY):
-        history = self.model.fit(X, Y, epochs=100, batch_size=128,validation_data=(valX,valY),verbose=0,callbacks=self.es)
+        history = self.model.fit(X, Y, epochs=100, batch_size=512,validation_data=(valX,valY),verbose=2,callbacks=self.es)
         return history
     
     def predict(self, X, Y):
         RESULTS = self.model.evaluate(X, Y, verbose=2)
-        print(RESULTS)
+        print("Results", RESULTS)
         predictions = self.model.predict(X)
         fpr,tpr,thresholds = roc_curve(Y , predictions)
         """predictions = tf.argmax(predictions, 1)

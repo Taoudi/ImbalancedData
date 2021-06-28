@@ -1,4 +1,3 @@
-from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 from DataLoader import DataLoader
 import math
@@ -38,6 +37,7 @@ class Augmenter:
         self.minority_data = self.X[arg_partition]
 
     def undersample(self,ratio=100):
+        # Undersampling, removing entries randomly to balance dataset
         n_augmented, min_count,max_count = self.get_counts()
         augmented = np.zeros((n_augmented,self.X.shape[1]))
         
@@ -84,16 +84,16 @@ class Augmenter:
 
             return neighbours2,k_distances
 
-    def SMOTE(self):
+    def SMOTE(self,k=100):
         # Oversampling through generating samples along neighbours
         n_augmented, min_count,max_count = self.get_counts()
         N = int(np.ceil(len(self.X) - len(self.minority_data))/len(self.minority_data))
         # N = int(np.floor(N/100)) # Integral multiples of 100
 
-        if(N>10):
-            k = int(N*np.log(N))
-        else:
-            k = int(5*N)
+        #if(N>10):
+        #    k = int(N*np.log(N))
+        #else:
+        #    k = int(5*N)
 
         if N < 1:
             print("N must be atleast 100")
